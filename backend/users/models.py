@@ -3,10 +3,6 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
 
 
-
-# from users.constants import MAX_USERNAME_LENGTH, MAX_USER_ROLE_LENGTH
-# from users.validators import validate_forbidden_username
-
 MAX_USERNAME_LENGTH = 20
 
 class FoodgramUser(AbstractUser):
@@ -20,6 +16,9 @@ class FoodgramUser(AbstractUser):
     )
     bio = models.TextField('Биография', blank=True)
     email = models.EmailField('Почта', unique=True)
+    avatar = models.ImageField('Аватар', upload_to='user_avatars', blank=True, null=True)
+    subscriptions = models.ManyToManyField('self', symmetrical=False, related_name='subscribers')
+
 
     class Meta:
         verbose_name = 'Пользователь'
@@ -28,3 +27,19 @@ class FoodgramUser(AbstractUser):
 
     def __str__(self):
         return f'Пользователь - {self.username}'
+
+
+# class Subscription(models.Model):
+#     user = models.ForeignKey(
+#         FoodgramUser, on_delete=models.CASCADE, related_name='subscribing'
+#     )
+#     subscribing = models.ForeignKey(
+#         FoodgramUser, on_delete=models.CASCADE, related_name='subscribers'
+#     )
+
+#     class Meta:
+#         constraints = [
+#             models.UniqueConstraint(
+#                 fields=['user', 'subscribing'], name='unique_user_subscribing'
+#             )
+#         ]

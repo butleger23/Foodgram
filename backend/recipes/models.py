@@ -10,17 +10,17 @@ RECIPE_MAX_LENGTH = 50
 
 
 class Recipe(models.Model):
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='recipes_author')
     users_who_favourited_this = models.ManyToManyField(
-        User, related_name='recipes', blank=True
+        User, related_name='recipes_favourites', blank=True
     )  # not sure how that'll work
     users_who_put_this_in_shopping_list = models.ManyToManyField(
-        User, related_name='recipes+', blank=True
+        User, related_name='recipes_shopping', blank=True
     )
     name = models.CharField(max_length=RECIPE_MAX_LENGTH)
     image = models.ImageField('Фото', upload_to='recipes_images')
-    tags = models.ManyToManyField(Tag, related_name='recipes')
-    ingredients = models.ManyToManyField(Ingredient, through='RecipeIngredient', related_name='recipes')
+    tags = models.ManyToManyField(Tag, related_name='recipes_tags')
+    ingredients = models.ManyToManyField(Ingredient, through='RecipeIngredient', related_name='recipes_ingredients')
     text = models.TextField('Описание')
     cooking_time = models.SmallIntegerField('Время приготовления в минутах')
 

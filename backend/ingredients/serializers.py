@@ -22,8 +22,8 @@ class IngredientSerializer(serializers.ModelSerializer):
     amount = serializers.SerializerMethodField(required=False)
 
     def get_amount(self, obj):
-        print(obj.id)
-        print(RecipeIngredient.objects.filter(pk=obj.id).last().ingredient)
+        # print(obj.id)
+        # print(RecipeIngredient.objects.filter(pk=obj.id).last().ingredient)
         return 2
 
     class Meta:
