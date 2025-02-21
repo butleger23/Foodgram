@@ -3,6 +3,8 @@ from django.contrib.auth import get_user_model
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework.validators import UniqueTogetherValidator
 
+from recipes.models import Recipe
+
 User = get_user_model()
 
 
@@ -10,6 +12,7 @@ class UserSerializer(serializers.ModelSerializer):
     avatar = Base64ImageField(required=False)
     is_subscribed = serializers.SerializerMethodField()
     username = serializers.CharField(required=True)
+    password = serializers.CharField(write_only=True)
 
 
     class Meta:
@@ -22,7 +25,15 @@ class UserSerializer(serializers.ModelSerializer):
             'last_name',
             'avatar',
             'is_subscribed',
+            'password'
         ]
+
+    def create(self, validated_data):
+        password = validated_data.pop('password')
+        user = super().create(validated_data)
+        user.set_password(password)
+        user.save()
+        return user
 
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
@@ -31,11 +42,18 @@ class UserSerializer(serializers.ModelSerializer):
         return False
 
 
+class SimpleRecipeSerializer(serializers.ModelSerializer):
+    image = Base64ImageField()
+
+    class Meta:
+        model = Recipe
+        fields = ['id', 'name', 'image', 'cooking_time']
+
 class UserSubscriptionSerializer(serializers.ModelSerializer):
     avatar = Base64ImageField(required=False)
     is_subscribed = serializers.SerializerMethodField()
-    recipes = serializers.SerializerMethodField()
-    recipes_count = serializers.SerializerMethodField()
+    recipes = SimpleRecipeSerializer(many=True, read_only=True)
+    recipes_count = serializers.IntegerField(source='recipes.count', read_only=True)
 
     class Meta:
         model = User
@@ -51,16 +69,10 @@ class UserSubscriptionSerializer(serializers.ModelSerializer):
             'recipes_count',
         ]
 
-    def get_recipes(self, obj):
-
-        return 1
 
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
         return request.user.subscriptions.filter(id=obj.id).exists()
-
-    def get_recipes_count(self, obj):
-        return 1
 
 
 # class SubscriptionSerializer(serializers.ModelSerializer):
