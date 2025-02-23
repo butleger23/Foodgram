@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from drf_extra_fields.fields import Base64ImageField
-from rest_framework.validators import UniqueTogetherValidator
 
 from recipes.models import Recipe
 
@@ -13,7 +12,6 @@ class UserSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField()
     username = serializers.CharField(required=True)
     password = serializers.CharField(write_only=True)
-
 
     class Meta:
         model = User

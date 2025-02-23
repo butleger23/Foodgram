@@ -3,7 +3,8 @@ from django.contrib.auth import get_user_model
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework import status, viewsets
-from djoser.views import UserViewSet as DjoserUserViewSet
+
+from api.pagination import CustomPaginationClass
 
 from .serializers import UserSerializer, UserSubscriptionSerializer
 
@@ -13,7 +14,7 @@ User = get_user_model()
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [AllowAny]
+    pagination_class = CustomPaginationClass
 
 
     @action(detail=False, methods=['post'])
@@ -27,7 +28,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'])
     def me(self, request):
-        serializer = UserSerializer(request.user)
+        serializer = self.get_serializer(request.user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['put', 'delete'], url_path='me/avatar')
@@ -38,7 +39,7 @@ class UserViewSet(viewsets.ModelViewSet):
             user.save()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
-        serializer = UserSerializer(user, data=request.data, partial=True)
+        serializer = self.get_serializer(user, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)

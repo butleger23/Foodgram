@@ -23,56 +23,62 @@ from .serializers import RecipeSerializer
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
+    # filter_backends = [DjangoFilterBackend]
+    # filterset_class = RecipeFilter
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
     @action(detail=False)
     def download_shopping_cart(self, request):
-        def generate_shopping_list_pdf(shopping_list_result):
-            buffer = BytesIO()  # Create a buffer to store the PDF
-            pdf = canvas.Canvas(buffer, pagesize=letter)
-
-            # Set up the PDF content
-            pdf.setFont("Roboto-Black", 12)
-            pdf.drawString(72, 750, "Shopping List")
-
-            y = 730  # Starting y-position for the list
-            for ingredient, amount in shopping_list_result.items():
-                pdf.drawString(72, y, f"{ingredient}: {amount}")
-                y -= 20  # Move down for the next item
-                if y < 50:  # Add a new page if we run out of space
-                    pdf.showPage()
-                    y = 750
-
-            pdf.save()
-            buffer.seek(0)  # Rewind the buffer to the beginning
-            return buffer
-
-        pdfmetrics.registerFont(TTFont('Roboto-Black', 'static/Roboto-Black.ttf'))
+        pdfmetrics.registerFont(
+            TTFont('Roboto-Black', 'static/Roboto-Black.ttf')
+        )
 
         user = request.user
 
         shopping_cart = user.shopping_cart.all()
         shopping_list_result = {}
 
-        recipes_with_ingredients = shopping_cart.prefetch_related('recipe_ingredient__ingredient')
+        recipes_with_ingredients = shopping_cart.prefetch_related(
+            'recipe_ingredient__ingredient'
+        )
 
         for recipe in recipes_with_ingredients:
             recipe_ingredients = recipe.recipe_ingredient.all()
             for recipe_ingredient_object in recipe_ingredients:
                 ingredient_name = recipe_ingredient_object.ingredient.name
                 if ingredient_name in shopping_list_result:
-                    shopping_list_result[ingredient_name] += recipe_ingredient_object.amount
+                    shopping_list_result[ingredient_name] += (
+                        recipe_ingredient_object.amount
+                    )
                 else:
-                    shopping_list_result[ingredient_name] = recipe_ingredient_object.amount
+                    shopping_list_result[ingredient_name] = (
+                        recipe_ingredient_object.amount
+                    )
 
-        pdf_buffer = generate_shopping_list_pdf(shopping_list_result)
+        buffer = BytesIO()
+        pdf = canvas.Canvas(buffer, pagesize=letter)
 
-        response = FileResponse(pdf_buffer, content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename="shopping_cart.pdf"'
+        pdf.setFont('Roboto-Black', 12)
+        pdf.drawString(72, 750, 'Shopping List')
+
+        y = 730
+        for ingredient, amount in shopping_list_result.items():
+            pdf.drawString(72, y, f'{ingredient}: {amount}')
+            y -= 20
+            if y < 50:
+                pdf.showPage()
+                y = 750
+
+        pdf.save()
+        buffer.seek(0)
+
+        response = FileResponse(buffer, content_type='application/pdf')
+        response['Content-Disposition'] = (
+            'attachment; filename="shopping_cart.pdf"'
+        )
         return response
-
 
     @action(detail=True, methods=['post', 'delete'])
     def shopping_cart(self, request, pk=None):
