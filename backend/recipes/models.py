@@ -12,7 +12,7 @@ SHORT_LINK_LENGTH = 5
 
 class Recipe(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='recipes')
-    users_who_favourited_this = models.ManyToManyField(
+    users_who_favorited_this = models.ManyToManyField(
         User, related_name='favorites_list', blank=True
     )  # not sure how that'll work
     users_who_put_this_in_shopping_cart = models.ManyToManyField(

@@ -13,6 +13,7 @@ from django.shortcuts import get_object_or_404, redirect
 from rest_framework.response import Response
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import FileResponse
+from recipes.filters import RecipeFilter
 from ingredients.models import Ingredient
 from users.serializers import SimpleRecipeSerializer
 
@@ -24,7 +25,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     # filter_backends = [DjangoFilterBackend]
-    # filterset_class = RecipeFilter
+    filterset_class = RecipeFilter
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
