@@ -6,7 +6,6 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from django.db import IntegrityError
-from django.http import HttpResponseBadRequest
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404, redirect
@@ -14,17 +13,15 @@ from rest_framework.response import Response
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import FileResponse
 from recipes.filters import RecipeFilter
-from ingredients.models import Ingredient
 from users.serializers import SimpleRecipeSerializer
 
-from .models import SHORT_LINK_LENGTH, Recipe, RecipeIngredient
+from .models import SHORT_LINK_LENGTH, Recipe
 from .serializers import RecipeSerializer
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
-    # filter_backends = [DjangoFilterBackend]
     filterset_class = RecipeFilter
 
     def perform_create(self, serializer):

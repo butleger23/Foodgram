@@ -6,6 +6,37 @@ from recipes.models import Recipe
 
 User = get_user_model()
 
+class UserCreateSerializer(serializers.ModelSerializer):
+    avatar = Base64ImageField(required=False)
+    is_subscribed = serializers.SerializerMethodField()
+    username = serializers.CharField(required=True)
+    password = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = User
+        fields = [
+            'email',
+            'username',
+            'first_name',
+            'last_name',
+            'avatar',
+            'is_subscribed',
+            'password'
+        ]
+
+    def create(self, validated_data):
+        password = validated_data.pop('password')
+        user = super().create(validated_data)
+        user.set_password(password)
+        user.save()
+        return user
+
+    def get_is_subscribed(self, obj):
+        request = self.context.get('request')
+        if not request.user.is_anonymous:
+            return request.user.subscriptions.filter(id=obj.id).exists()
+        return False
+
 
 class UserSerializer(serializers.ModelSerializer):
     avatar = Base64ImageField(required=False)

@@ -13,7 +13,6 @@ class RecipeFilter(filters.FilterSet):
         fields = ['is_favorited', 'is_in_shopping_cart', 'author', 'tags']
 
     def filter_is_favorited(self, queryset, name, value):
-        # value will be 0 or 1
         if value == 1:
             return queryset.filter(users_who_favorited_this__id=self.request.user.id)
         elif value == 0:
@@ -21,7 +20,6 @@ class RecipeFilter(filters.FilterSet):
         return queryset
 
     def filter_is_in_shopping_cart(self, queryset, name, value):
-        # value will be 0 or 1
         if value == 1:
             return queryset.filter(users_who_put_this_in_shopping_cart__id=self.request.user.id)
         elif value == 0:

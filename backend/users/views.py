@@ -1,10 +1,10 @@
 from rest_framework.decorators import action
 from django.contrib.auth import get_user_model
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import status, viewsets
 
-from api.pagination import CustomPaginationClass
+from api.pagination import UserPaginationClass
 
 from .serializers import UserSerializer, UserSubscriptionSerializer
 
@@ -14,7 +14,14 @@ User = get_user_model()
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    pagination_class = CustomPaginationClass
+    pagination_class = UserPaginationClass
+
+
+    def get_permissions(self):
+        if self.action == 'create':
+            return [AllowAny()]
+        else:
+            return [IsAuthenticated()]
 
 
     @action(detail=False, methods=['post'])
