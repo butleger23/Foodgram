@@ -10,7 +10,7 @@ from ingredients.models import Ingredient
 from tags.models import Tag
 from tags.serializers import TagSerializer
 from django.shortcuts import get_object_or_404
-from django.http.response import Http404
+from django.http.response import Http404, HttpResponseBadRequest
 from django.core.exceptions import ObjectDoesNotExist
 
 from .models import Recipe, RecipeIngredient
@@ -73,14 +73,28 @@ class RecipeSerializer(serializers.ModelSerializer):
         tags_ids = self.initial_data.get('tags', [])
         tags = Tag.objects.filter(id__in=tags_ids)
         if not tags:
-            raise Http404('Тэги с данными id не существуют')
+            raise serializers.ValidationError({'tags': 'Тэги с данными id не существуют'})
         recipe = Recipe.objects.create(**validated_data)
         recipe.tags.add(*tags)
 
         ingredients = self.initial_data.get('ingredients', [])
 
+        if not ingredients:
+            raise serializers.ValidationError({'ingredients': 'Для создания рецепта требуются ингредиенты'})
+
+        ingredient_ids = [ingredient['id'] for ingredient in ingredients]
+        if len(ingredient_ids) != len(set(ingredient_ids)):
+            raise serializers.ValidationError({'ingredients': 'Ингредиенты не должны повторяться'})
+
         for ingredient in ingredients:
-            ingredient_object = get_object_or_404(Ingredient, pk=ingredient['id'])
+            try:
+                ingredient_object = Ingredient.objects.get(pk=ingredient['id'])
+            except ObjectDoesNotExist:
+                raise serializers.ValidationError({'ingredients': 'Данного ингредиента не существует'})
+
+            if ingredient['amount'] <= 0:
+                raise serializers.ValidationError({'ingredients': 'Количество ингредиента должно быть больше 0'})
+
             RecipeIngredient.objects.create(
                 recipe=recipe,
                 ingredient=ingredient_object,

@@ -1,5 +1,5 @@
 from django.contrib.auth.models import AbstractUser
-from django.contrib.auth.validators import UnicodeUsernameValidator
+from django.core.validators import MaxLengthValidator
 from django.db import models
 
 
@@ -9,7 +9,7 @@ class FoodgramUser(AbstractUser):
     username = models.CharField(
         max_length=MAX_USERNAME_LENGTH,
         unique=True,
-        # validators=[UnicodeUsernameValidator(), validate_forbidden_username],
+        # validators=[MaxLengthValidator(MAX_USERNAME_LENGTH)],
         error_messages={
             'unique': 'A user with that username already exists.',
         },

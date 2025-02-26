@@ -4,24 +4,29 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import status, viewsets
 
-from api.pagination import UserPaginationClass
+from api.pagination import CustomPaginationClass
 
-from .serializers import UserSerializer, UserSubscriptionSerializer
+from .serializers import UserAvatarSerializer, UserCreateSerializer, UserSerializer, UserSubscriptionSerializer
 
 User = get_user_model()
 
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
-    serializer_class = UserSerializer
-    pagination_class = UserPaginationClass
+    pagination_class = CustomPaginationClass
 
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return UserCreateSerializer
+        if self.action == 'avatar' and self.request.method == 'PUT':
+            return UserAvatarSerializer
+        return UserSerializer
 
     def get_permissions(self):
-        if self.action == 'create':
+        if self.action in ['list', 'create', 'retrieve', 'get_token']:
             return [AllowAny()]
-        else:
-            return [IsAuthenticated()]
+        return [IsAuthenticated()]
 
 
     @action(detail=False, methods=['post'])
@@ -30,6 +35,11 @@ class UserViewSet(viewsets.ModelViewSet):
         if user.check_password(request.data.get('current_password')):
             user.set_password(request.data.get('new_password'))
             user.save()
+        else:
+            return Response(
+                    {'error': 'Неправильный пароль.'},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -47,6 +57,7 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response(status=status.HTTP_204_NO_CONTENT)
 
         serializer = self.get_serializer(user, data=request.data, partial=True)
+        serializer.fields['avatar'].required = True
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
