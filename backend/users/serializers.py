@@ -70,7 +70,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
-        if not request.user.is_anonymous:
+        if request and request.user.is_authenticated:
             return request.user.subscriptions.filter(id=obj.id).exists()
         return False
 
@@ -102,39 +102,16 @@ class UserSubscriptionSerializer(serializers.ModelSerializer):
             'recipes_count',
         ]
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        recipes_limit = self.context.get('recipes_limit', None)
+        if recipes_limit is not None and 'recipes' in representation:
+            representation['recipes'] = representation['recipes'][:int(recipes_limit)]
+        return representation
+
 
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
-        return request.user.subscriptions.filter(id=obj.id).exists()
-
-
-# class SubscriptionSerializer(serializers.ModelSerializer):
-#     user = serializers.SlugRelatedField(
-#         read_only=True,
-#         slug_field='username',
-#         default=serializers.CurrentUserDefault(),
-#     )
-#     subscribing = serializers.SlugRelatedField(
-#         # queryset=User.objects.all(),
-#         read_only=True,
-#         slug_field='username',
-#         default=User.objects.first(),
-#     )
-
-#     class Meta:
-#         fields = ('user', 'subscribing')
-#         model = Subscription
-#         validators = [
-#             UniqueTogetherValidator(
-#                 queryset=Subscription.objects.all(),
-#                 fields=['user', 'subscribing'],
-#                 message='Cannot subscribe to the same person twice',
-#             )
-#         ]
-
-#     def validate_subscribing(self, subscribing):
-#         if subscribing == self.context['request'].user:
-#             raise serializers.ValidationError(
-#                 'Choose a different person to subscribe to: cannot subscribe to yourself'
-#             )
-#         return subscribing
+        if request and request.user.is_authenticated:
+            return request.user.subscriptions.filter(id=obj.id).exists()
+        return False

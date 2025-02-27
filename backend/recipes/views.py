@@ -13,6 +13,7 @@ from rest_framework.response import Response
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import FileResponse
 from api.pagination import CustomPaginationClass
+from recipes.permissions import IsAuthorOrReadOnly
 from recipes.filters import RecipeFilter
 from users.serializers import SimpleRecipeSerializer
 
@@ -25,6 +26,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     serializer_class = RecipeSerializer
     pagination_class = CustomPaginationClass
     filterset_class = RecipeFilter
+    permission_classes = [IsAuthorOrReadOnly]
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
