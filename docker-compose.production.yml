@@ -23,6 +23,8 @@ services:
     command: cp -r /app/build/. /static/
     volumes:
       - static_volume:/static
+    depends_on:
+    - db
   gateway:
     image: borpa/foodgram_gateway
     env_file: .env
