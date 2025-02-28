@@ -16,7 +16,7 @@ DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(', ')
 
-CSRF_TRUSTED_ORIGINS = ['https://borpa.bounceme.net/', 'https://www.site.lv']
+CSRF_TRUSTED_ORIGINS = ['https://borpa.bounceme.net']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
