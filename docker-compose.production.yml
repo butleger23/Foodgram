@@ -24,7 +24,7 @@ services:
     volumes:
       - static_volume:/static
     depends_on:
-    - db
+      - db
   gateway:
     image: borpa/foodgram_gateway
     env_file: .env
