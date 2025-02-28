@@ -9,10 +9,11 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
+
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
-from pathlib import Path
 
 
 load_dotenv()
@@ -24,12 +25,19 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-ih7g))kcdh6nk^o883)c8mnp1w3h)-7dsm#jq0y2n!icp6ru(8'
+SECRET_KEY = (
+    'django-insecure-ih7g))kcdh6nk^o883)c8mnp1w3h)-7dsm#jq0y2n!icp6ru(8'
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['51.250.101.197', 'borpa.bounceme.net', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = [
+    '51.250.101.197',
+    'borpa.bounceme.net',
+    '127.0.0.1',
+    'localhost',
+]
 
 
 # Application definition
@@ -92,11 +100,11 @@ DATABASES = {
         'USER': os.getenv('POSTGRES_USER', 'django'),
         'PASSWORD': os.getenv('POSTGRES_PASSWORD', ''),
         'HOST': os.getenv('DB_HOST', ''),
-        'PORT': os.getenv('DB_PORT', 5432)
+        'PORT': os.getenv('DB_PORT', 5432),
     }
 }
 
-AUTH_USER_MODEL = "users.FoodgramUser"
+AUTH_USER_MODEL = 'users.FoodgramUser'
 
 
 # Password validation
@@ -124,12 +132,12 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
     ),
-    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend'
+    ],
 }
 
-DJOSER = {
-    'LOGIN_FIELD': 'email'
-}
+DJOSER = {'LOGIN_FIELD': 'email'}
 
 
 # Internationalization

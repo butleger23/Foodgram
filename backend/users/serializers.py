@@ -1,19 +1,24 @@
-from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from drf_extra_fields.fields import Base64ImageField
 from django.contrib.auth.validators import UnicodeUsernameValidator
+from drf_extra_fields.fields import Base64ImageField
+from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
-from users.models import MAX_USERNAME_LENGTH
 from recipes.models import Recipe
+from users.models import MAX_USERNAME_LENGTH
+
 
 User = get_user_model()
+
 
 class UserCreateSerializer(serializers.ModelSerializer):
     username = serializers.CharField(
         required=True,
         max_length=MAX_USERNAME_LENGTH,
-        validators=[UnicodeUsernameValidator(), UniqueValidator(User.objects.all())],
+        validators=[
+            UnicodeUsernameValidator(),
+            UniqueValidator(User.objects.all()),
+        ],
     )
     password = serializers.CharField(write_only=True)
 
@@ -45,7 +50,9 @@ class UserAvatarSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         if 'avatar' not in attrs:
-            raise serializers.ValidationError({"avatar": "This field is required."})
+            raise serializers.ValidationError(
+                {'avatar': 'This field is required.'}
+            )
         return attrs
 
 
@@ -65,7 +72,7 @@ class UserSerializer(serializers.ModelSerializer):
             'last_name',
             'avatar',
             'is_subscribed',
-            'password'
+            'password',
         ]
 
     def get_is_subscribed(self, obj):
@@ -82,11 +89,14 @@ class SimpleRecipeSerializer(serializers.ModelSerializer):
         model = Recipe
         fields = ['id', 'name', 'image', 'cooking_time']
 
+
 class UserSubscriptionSerializer(serializers.ModelSerializer):
     avatar = Base64ImageField(required=False)
     is_subscribed = serializers.SerializerMethodField()
     recipes = SimpleRecipeSerializer(many=True, read_only=True)
-    recipes_count = serializers.IntegerField(source='recipes.count', read_only=True)
+    recipes_count = serializers.IntegerField(
+        source='recipes.count', read_only=True
+    )
 
     class Meta:
         model = User
@@ -106,9 +116,10 @@ class UserSubscriptionSerializer(serializers.ModelSerializer):
         representation = super().to_representation(instance)
         recipes_limit = self.context.get('recipes_limit', None)
         if recipes_limit is not None and 'recipes' in representation:
-            representation['recipes'] = representation['recipes'][:int(recipes_limit)]
+            representation['recipes'] = representation['recipes'][
+                : int(recipes_limit)
+            ]
         return representation
-
 
     def get_is_subscribed(self, obj):
         request = self.context.get('request')

@@ -22,5 +22,4 @@ urlpatterns = [
     path('api/', include('api.urls')),
     path('admin/', admin.site.urls),
     path('s/<str:short_link>', redirect_to_recipe, name='redirect_to_recipe')
-    # path('auth/', include('django.contrib.auth.urls')),
 ]

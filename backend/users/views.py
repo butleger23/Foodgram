@@ -1,19 +1,18 @@
-from rest_framework.decorators import action
 from django.contrib.auth import get_user_model
-from rest_framework.response import Response
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework import status, viewsets
 from django.core.exceptions import ObjectDoesNotExist
-
+from rest_framework import status, viewsets
+from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
 
 from api.pagination import CustomPaginationClass
-
 from .serializers import (
     UserAvatarSerializer,
     UserCreateSerializer,
     UserSerializer,
     UserSubscriptionSerializer,
 )
+
 
 User = get_user_model()
 
@@ -116,7 +115,7 @@ class UserViewSet(viewsets.ModelViewSet):
             serializer = UserSubscriptionSerializer(
                 target_user,
                 context={'request': request, 'recipes_limit': recipes_limit},
-            )  # Passing context smells
+            )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         elif request.method == 'DELETE':

@@ -1,22 +1,23 @@
 import random
 import string
 from io import BytesIO
-from reportlab.pdfgen import canvas
+
+from django.core.exceptions import ObjectDoesNotExist
+from django.db import IntegrityError
+from django.http import FileResponse
+from django.shortcuts import get_object_or_404, redirect
 from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-from django.db import IntegrityError
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
-from django.shortcuts import get_object_or_404, redirect
 from rest_framework.response import Response
-from django.core.exceptions import ObjectDoesNotExist
-from django.http import FileResponse
-from api.pagination import CustomPaginationClass
-from recipes.permissions import IsAuthorOrReadOnly
-from recipes.filters import RecipeFilter
-from users.serializers import SimpleRecipeSerializer
 
+from api.pagination import CustomPaginationClass
+from recipes.filters import RecipeFilter
+from recipes.permissions import IsAuthorOrReadOnly
+from users.serializers import SimpleRecipeSerializer
 from .models import SHORT_LINK_LENGTH, Recipe
 from .serializers import RecipeSerializer
 
@@ -90,7 +91,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if request.method == 'POST':
             if user.shopping_cart.filter(pk=recipe.pk):
                 return Response(
-                    'Рецепт, который вы пытаетесь добавить, уже находится в списке покупок',
+                    ('Рецепт, который вы пытаетесь добавить'
+                    ' уже находится в списке покупок',)
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             user.shopping_cart.add(recipe)
@@ -101,15 +103,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
             user.shopping_cart.get(pk=recipe.pk)
         except ObjectDoesNotExist:
             return Response(
-                'Рецепт, который вы пытаетесь удалить, не находится в списке покупок',
+                ('Рецепт, который вы пытаетесь удалить,'
+                ' не находится в списке покупок'),
                 status=status.HTTP_400_BAD_REQUEST,
             )
         user.shopping_cart.remove(recipe)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @action(
-        detail=True, methods=['post', 'delete']
-    )  # Can i squish shopping_cart and favorites in one function?
+    @action(detail=True, methods=['post', 'delete'])
     def favorite(self, request, pk=None):
         user = request.user
         recipe = get_object_or_404(Recipe, pk=pk)
@@ -117,7 +118,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if request.method == 'POST':
             if user.favorites_list.filter(pk=recipe.pk):
                 return Response(
-                    'Рецепт, который вы пытаетесь добавить, уже находится в избранном',
+                    ('Рецепт, который вы пытаетесь добавить,'
+                    ' уже находится в избранном'),
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             user.favorites_list.add(recipe)
@@ -128,7 +130,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
             user.favorites_list.get(pk=recipe.pk)
         except ObjectDoesNotExist:
             return Response(
-                'Рецепт, который вы пытаетесь удалить, не находится в избранном',
+                ('Рецепт, который вы пытаетесь удалить,'
+                ' не находится в избранном'),
                 status=status.HTTP_400_BAD_REQUEST,
             )
         user.favorites_list.remove(recipe)
