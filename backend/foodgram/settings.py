@@ -123,13 +123,13 @@ USE_L10N = True
 
 USE_TZ = True
 
-
-
 MEDIA_URL = '/media/'
 MEDIA_ROOT = '/media'
 
 STATIC_URL = '/static/'
 STATIC_ROOT = '/static/static/'
-
+STATICFILES_DIRS = [
+    '/app/static',
+]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
