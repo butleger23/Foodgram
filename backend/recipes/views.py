@@ -91,8 +91,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if request.method == 'POST':
             if user.shopping_cart.filter(pk=recipe.pk):
                 return Response(
-                    ('Рецепт, который вы пытаетесь добавить'
-                    ' уже находится в списке покупок',)
+                    """Рецепт, который вы пытаетесь добавить 
+                    уже находится в списке покупок""",
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             user.shopping_cart.add(recipe)
@@ -103,8 +103,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
             user.shopping_cart.get(pk=recipe.pk)
         except ObjectDoesNotExist:
             return Response(
-                ('Рецепт, который вы пытаетесь удалить,'
-                ' не находится в списке покупок'),
+                """Рецепт, который вы пытаетесь удалить, 
+                не находится в списке покупок""",
                 status=status.HTTP_400_BAD_REQUEST,
             )
         user.shopping_cart.remove(recipe)
@@ -118,8 +118,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if request.method == 'POST':
             if user.favorites_list.filter(pk=recipe.pk):
                 return Response(
-                    ('Рецепт, который вы пытаетесь добавить,'
-                    ' уже находится в избранном'),
+                    """Рецепт, который вы пытаетесь добавить, 
+                    уже находится в избранном""",
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             user.favorites_list.add(recipe)
@@ -130,8 +130,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
             user.favorites_list.get(pk=recipe.pk)
         except ObjectDoesNotExist:
             return Response(
-                ('Рецепт, который вы пытаетесь удалить,'
-                ' не находится в избранном'),
+                """Рецепт, который вы пытаетесь удалить, 
+                не находится в избранном""",
                 status=status.HTTP_400_BAD_REQUEST,
             )
         user.favorites_list.remove(recipe)
