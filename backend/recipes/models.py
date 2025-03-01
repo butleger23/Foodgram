@@ -38,6 +38,11 @@ class Recipe(models.Model):
     short_link = models.CharField(
         max_length=SHORT_LINK_LENGTH, unique=True, null=True
     )
+    created = models.DateTimeField('Дата создания', auto_now_add=True)
+
+    class Meta:
+        ordering = ('-created')
+
 
     def __str__(self):
         return self.name
