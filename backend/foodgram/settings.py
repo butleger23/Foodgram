@@ -10,7 +10,7 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-SECRET_KEY =  os.getenv('SECRET_KEY', get_random_secret_key())
+SECRET_KEY = os.getenv('SECRET_KEY', get_random_secret_key())
 
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
@@ -65,8 +65,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'foodgram.wsgi.application'
 
-
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -79,8 +77,6 @@ DATABASES = {
 }
 
 AUTH_USER_MODEL = 'users.FoodgramUser'
-
-
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -110,8 +106,6 @@ REST_FRAMEWORK = {
 }
 
 DJOSER = {'LOGIN_FIELD': 'email'}
-
-
 
 LANGUAGE_CODE = 'en-us'
 

@@ -6,6 +6,7 @@ class RecipeIngredientInline(admin.TabularInline):
     model = RecipeIngredient
     extra = 1
 
+
 class RecipeAdmin(admin.ModelAdmin):
     list_display = ('name', 'author__username')
     search_fields = ('author__username', 'name')
@@ -16,5 +17,6 @@ class RecipeAdmin(admin.ModelAdmin):
     def favorites_count(self, obj):
         return obj.users_who_favorited_this.count()
     favorites_count.short_description = 'Favorites count'
+
 
 admin.site.register(Recipe, RecipeAdmin)
