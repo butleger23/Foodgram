@@ -17,26 +17,24 @@ class RecipeFilter(filters.FilterSet):
         fields = ['is_favorited', 'is_in_shopping_cart', 'author', 'tags']
 
     def filter_is_favorited(self, queryset, name, value):
-        if value == 1:
+        if value:
             return queryset.filter(
                 users_who_favorited_this__id=self.request.user.id
             )
-        elif value == 0:
+        else:
             return queryset.exclude(
                 users_who_favorited_this__id=self.request.user.id
             )
-        return queryset
 
     def filter_is_in_shopping_cart(self, queryset, name, value):
-        if value == 1:
+        if value:
             return queryset.filter(
                 users_who_put_this_in_shopping_cart__id=self.request.user.id
             )
-        elif value == 0:
+        else:
             return queryset.exclude(
                 users_who_put_this_in_shopping_cart__id=self.request.user.id
             )
-        return queryset
 
     def filter_tags(self, queryset, name, value):
         tags = self.request.query_params.getlist('tags')

@@ -1,10 +1,15 @@
 from django.contrib import admin
+
 from .models import Recipe, RecipeIngredient
 
 
+AMOUNT_OF_INGREDIENTS_TO_ADD = 3
+MINIMUM_AMOUNT_OF_INGREDIENTS = 1
+
 class RecipeIngredientInline(admin.TabularInline):
     model = RecipeIngredient
-    extra = 1
+    extra = AMOUNT_OF_INGREDIENTS_TO_ADD
+    min_num = MINIMUM_AMOUNT_OF_INGREDIENTS
 
 
 class RecipeAdmin(admin.ModelAdmin):
@@ -16,6 +21,7 @@ class RecipeAdmin(admin.ModelAdmin):
 
     def favorites_count(self, obj):
         return obj.users_who_favorited_this.count()
+
     favorites_count.short_description = 'Favorites count'
 
 
