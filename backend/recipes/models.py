@@ -36,13 +36,12 @@ class Recipe(models.Model):
         validators=[MinValueValidator(MINIMUM_COOKING_TIME)],
     )
     short_link = models.CharField(
-        max_length=SHORT_LINK_LENGTH, unique=True, null=True
+        max_length=SHORT_LINK_LENGTH, unique=True, null=True, blank=True
     )
     created = models.DateTimeField('Дата создания', auto_now_add=True)
 
     class Meta:
-        ordering = ('-created')
-
+        ordering = ('-created',)
 
     def __str__(self):
         return self.name
