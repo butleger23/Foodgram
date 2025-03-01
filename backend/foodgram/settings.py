@@ -18,6 +18,9 @@ ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(', ')
 
 CSRF_TRUSTED_ORIGINS = ['https://borpa.bounceme.net']
 
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = True
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
