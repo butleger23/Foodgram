@@ -10,7 +10,7 @@ class RecipeFilter(filters.FilterSet):
         method='filter_is_in_shopping_cart'
     )
     author = filters.NumberFilter(field_name='author__id')
-    tags = filters.CharFilter(field_name='filter_tags')
+    tags = filters.CharFilter(method='filter_tags')
 
     class Meta:
         model = Recipe
