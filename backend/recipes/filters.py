@@ -1,4 +1,5 @@
 from django_filters import rest_framework as filters
+from django.db.models import Q
 
 from recipes.models import Recipe
 
@@ -9,7 +10,7 @@ class RecipeFilter(filters.FilterSet):
         method='filter_is_in_shopping_cart'
     )
     author = filters.NumberFilter(field_name='author__id')
-    tags = filters.CharFilter(field_name='tags__slug', lookup_expr='iexact')
+    tags = filters.CharFilter(field_name='filter_tags')
 
     class Meta:
         model = Recipe
@@ -36,3 +37,10 @@ class RecipeFilter(filters.FilterSet):
                 users_who_put_this_in_shopping_cart__id=self.request.user.id
             )
         return queryset
+
+    def filter_tags(self, queryset, name, value):
+        tags = self.request.query_params.getlist('tags')
+        q_objects = Q()
+        for tag in tags:
+            q_objects |= Q(tags__slug__iexact=tag.strip())
+        return queryset.filter(q_objects).distinct()
