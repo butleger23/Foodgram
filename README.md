@@ -1,4 +1,23 @@
-Находясь в папке infra, выполните команду docker-compose up. При выполнении этой команды контейнер frontend, описанный в docker-compose.yml, подготовит файлы, необходимые для работы фронтенд-приложения, а затем прекратит свою работу.
+### Описание проекта:
 
-По адресу http://localhost изучите фронтенд веб-приложения, а по адресу http://localhost/api/docs/ — спецификацию API.
+В данном проекте был создан бекенд и настроена работа сервера для Foodgram.
 
+### Авторы проекта:
+
+Данный проект был разработан Максименко Стефаном
+
+### Использованные технологии:
+
+В данном проекте используются данные технологии:
+
+[Django](https://www.djangoproject.com/)
+
+[Django rest framework](https://www.django-rest-framework.org/)
+
+[DRF nested routers](https://github.com/alanjds/drf-nested-routers)
+
+### Адрес сервера:
+
+К серверу можно получить доступ:
+[borpa.bounceme.net](https://borpa.bounceme.net/)
+[https://51.250.101.197/](https://51.250.101.197/recipes)
