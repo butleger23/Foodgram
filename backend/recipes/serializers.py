@@ -63,28 +63,28 @@ class RecipeReadSerializer(serializers.ModelSerializer):
         ]
 
     def get_is_favorited(self, obj):
-        request = self.context.get('request')
-        if not request.user.is_anonymous:
-            return FavoritesListRecipe.objects.filter(
+        return bool(
+            (request := self.context.get('request'))
+            and request.user.is_authenticated
+            and FavoritesListRecipe.objects.filter(
                 user=request.user, recipe=obj
             ).exists()
-        return False
+        )
 
     def get_is_in_shopping_cart(self, obj):
-        request = self.context.get('request')
-        if not request.user.is_anonymous:
-            return ShoppingCartRecipe.objects.filter(
+        return bool(
+            (request := self.context.get('request'))
+            and request.user.is_authenticated
+            and ShoppingCartRecipe.objects.filter(
                 user=request.user, recipe=obj
             ).exists()
-        return False
+        )
 
 
 class RecipeWriteSerializer(serializers.ModelSerializer):
     image = Base64ImageField(required=True)
     tags = serializers.PrimaryKeyRelatedField(
-        queryset=Tag.objects.all(),
-        many=True,
-        required=True
+        queryset=Tag.objects.all(), many=True, required=True
     )
     ingredients = RecipeIngredientWriteSerializer(many=True, required=True)
 
@@ -146,24 +146,23 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
 
         return ingredients
 
-    def create_or_update_recipe(self, instance, validated_data):
-        tags = validated_data.pop('tags', [])
-        ingredients_data = validated_data.pop('ingredients', [])
-
-        image = validated_data.get('image', [])
+    def validate_image(self, image):
         if not image:
             raise serializers.ValidationError(
                 {
                     'image': 'Для создания рецепта требуется добавить изображение'
                 }
             )
+        return image
+
+    def create_or_update_recipe(self, instance, validated_data):
+        tags = validated_data.pop('tags', [])
+        ingredients_data = validated_data.pop('ingredients', [])
 
         if instance is None:
             instance = Recipe.objects.create(**validated_data)
         else:
-            for attr, value in validated_data.items():
-                setattr(instance, attr, value)
-            instance.save()
+            instance = super().update(instance, validated_data)
 
         instance.tags.set(tags)
 
@@ -184,4 +183,6 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         return self.create_or_update_recipe(instance, validated_data)
 
     def to_representation(self, instance):
-        return RecipeReadSerializer(instance, context=self.context).to_representation(instance)
+        return RecipeReadSerializer(
+            instance, context=self.context
+        ).to_representation(instance)

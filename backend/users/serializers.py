@@ -76,10 +76,11 @@ class UserSerializer(serializers.ModelSerializer):
         ]
 
     def get_is_subscribed(self, obj):
-        request = self.context.get('request')
-        if request and request.user.is_authenticated:
-            return request.user.subscriptions.filter(id=obj.id).exists()
-        return False
+        return bool(
+            (request := self.context.get('request'))
+            and request.user.is_authenticated
+            and request.user.subscriptions.filter(id=obj.id).exists()
+        )
 
 
 class SimpleRecipeSerializer(serializers.ModelSerializer):
