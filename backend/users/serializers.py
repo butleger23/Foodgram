@@ -24,14 +24,14 @@ class UserCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = [
+        fields = (
             'email',
             'id',
             'username',
             'first_name',
             'last_name',
             'password',
-        ]
+        )
 
     def create(self, validated_data):
         password = validated_data.pop('password')
@@ -46,7 +46,7 @@ class UserAvatarSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['avatar']
+        fields = ('avatar',)
 
     def validate(self, attrs):
         if 'avatar' not in attrs:
@@ -64,7 +64,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = [
+        fields = (
             'email',
             'id',
             'username',
@@ -73,7 +73,7 @@ class UserSerializer(serializers.ModelSerializer):
             'avatar',
             'is_subscribed',
             'password',
-        ]
+        )
 
     def get_is_subscribed(self, obj):
         return bool(
@@ -88,7 +88,7 @@ class SimpleRecipeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ['id', 'name', 'image', 'cooking_time']
+        fields = ('id', 'name', 'image', 'cooking_time')
 
 
 class UserSubscriptionSerializer(serializers.ModelSerializer):
@@ -101,7 +101,7 @@ class UserSubscriptionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = [
+        fields = (
             'email',
             'id',
             'username',
@@ -111,7 +111,7 @@ class UserSubscriptionSerializer(serializers.ModelSerializer):
             'is_subscribed',
             'recipes',
             'recipes_count',
-        ]
+        )
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)

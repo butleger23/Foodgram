@@ -21,7 +21,7 @@ User = get_user_model()
 class Simple2RecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
-        fields = ['id', 'name', 'image', 'cooking_time']
+        fields = ('id', 'name', 'image', 'cooking_time')
 
 
 class ShoppingCartRecipeSerializer(serializers.ModelSerializer):
@@ -34,7 +34,7 @@ class ShoppingCartRecipeSerializer(serializers.ModelSerializer):
         validators = [
             UniqueTogetherValidator(
                 queryset=ShoppingCartRecipe.objects.all(),
-                fields=['user', 'recipe']
+                fields=('user', 'recipe')
             )
         ]
 
@@ -60,7 +60,7 @@ class FavoritesListRecipeSerializer(serializers.ModelSerializer):
         validators = [
             UniqueTogetherValidator(
                 queryset=FavoritesListRecipe.objects.all(),
-                fields=['user', 'recipe']
+                fields=('user', 'recipe')
             )
         ]
 
@@ -108,7 +108,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = [
+        fields = (
             'id',
             'tags',
             'author',
@@ -119,7 +119,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
             'cooking_time',
             'is_favorited',
             'is_in_shopping_cart',
-        ]
+        )
 
     def get_is_favorited(self, obj):
         return bool(
@@ -149,7 +149,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = [
+        fields = (
             'id',
             'tags',
             'author',
@@ -158,8 +158,8 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             'image',
             'text',
             'cooking_time',
-        ]
-        read_only_fields = ['author']
+        )
+        read_only_fields = ('author',)
 
     def validate(self, data):
         if 'ingredients' not in data:
