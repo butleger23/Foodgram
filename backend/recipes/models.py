@@ -1,3 +1,5 @@
+import random
+import string
 from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -51,6 +53,22 @@ class Recipe(models.Model):
 
     def __str__(self):
         return self.name
+
+    def generate_short_link(self):
+        while True:
+            short_link = ''.join(
+                random.choices(
+                    string.ascii_lowercase + string.digits,
+                    k=SHORT_LINK_LENGTH,
+                )
+            )
+            if not Recipe.objects.filter(short_link=short_link).exists():
+                return short_link
+
+    def save(self, *args, **kwargs):
+        if not self.short_link:
+            self.short_link = self.generate_short_link()
+        super().save(*args, **kwargs)
 
 
 class RecipeIngredient(models.Model):

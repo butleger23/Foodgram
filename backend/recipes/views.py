@@ -159,25 +159,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, url_path='get-link')
     def get_link(self, request, pk=None):
-        def create_short_link(recipe):
-            while True:
-                short_link = ''.join(
-                    random.choices(
-                        string.ascii_lowercase + string.digits,
-                        k=SHORT_LINK_LENGTH,
-                    )
-                )
-                recipe.short_link = short_link
-                try:
-                    recipe.save()
-                    return short_link
-                except IntegrityError:
-                    continue
-
         recipe = get_object_or_404(Recipe, pk=pk)
         short_link = recipe.short_link
-        if not short_link:
-            short_link = create_short_link(recipe)
 
         return Response(
             {'short-link': request.build_absolute_uri(f'/s/{short_link}')}
@@ -185,12 +168,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 
 def redirect_to_recipe(request, short_link):
-    try:
-        recipe = Recipe.objects.get(short_link=short_link)
-        redirect_url = f'/api/recipes/{recipe.id}/'
-        return redirect(redirect_url)
-    except ObjectDoesNotExist:
-        return Response(
-            'Неправильная короткая ссылка на рецепт',
-            status=status.HTTP_400_BAD_REQUEST,
-        )
+    recipe = get_object_or_404(Recipe, short_link=short_link)
+    redirect_url = f'/api/recipes/{recipe.id}/'
+    return redirect(redirect_url)
