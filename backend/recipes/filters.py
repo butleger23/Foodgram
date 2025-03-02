@@ -19,21 +19,21 @@ class RecipeFilter(filters.FilterSet):
     def filter_is_favorited(self, queryset, name, value):
         if value:
             return queryset.filter(
-                users_who_favorited_this__id=self.request.user.id
+                favorites_list__user=self.request.user
             )
         else:
             return queryset.exclude(
-                users_who_favorited_this__id=self.request.user.id
+                favorites_list__user=self.request.user
             )
 
     def filter_is_in_shopping_cart(self, queryset, name, value):
         if value:
             return queryset.filter(
-                users_who_put_this_in_shopping_cart__id=self.request.user.id
+                shopping_cart__user=self.request.user
             )
         else:
             return queryset.exclude(
-                users_who_put_this_in_shopping_cart__id=self.request.user.id
+                shopping_cart__user=self.request.user
             )
 
     def filter_tags(self, queryset, name, value):
