@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 
 from ingredients.models import Ingredient
 from tags.models import Tag
@@ -15,6 +16,64 @@ from .models import (
 
 
 User = get_user_model()
+
+
+class Simple2RecipeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Recipe
+        fields = ['id', 'name', 'image', 'cooking_time']
+
+
+class ShoppingCartRecipeSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    recipe = serializers.PrimaryKeyRelatedField(queryset=Recipe.objects.all())
+
+    class Meta:
+        model = ShoppingCartRecipe
+        fields = ['user', 'recipe']
+        validators = [
+            UniqueTogetherValidator(
+                queryset=ShoppingCartRecipe.objects.all(),
+                fields=['user', 'recipe']
+            )
+        ]
+
+    def validate_recipe(self, value):
+        user = self.context['request'].user
+        if ShoppingCartRecipe.objects.filter(user=user, recipe=value).exists():
+            raise serializers.ValidationError(
+                'Рецепт, который вы пытаетесь добавить, уже находится в списке покупок.'
+            )
+        return value
+
+    def to_representation(self, instance):
+        return Simple2RecipeSerializer(instance.recipe).data
+
+
+class FavoritesListRecipeSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    recipe = serializers.PrimaryKeyRelatedField(queryset=Recipe.objects.all())
+
+    class Meta:
+        model = FavoritesListRecipe
+        fields = ['user', 'recipe']
+        validators = [
+            UniqueTogetherValidator(
+                queryset=FavoritesListRecipe.objects.all(),
+                fields=['user', 'recipe']
+            )
+        ]
+
+    def validate_recipe(self, value):
+        user = self.context['request'].user
+        if FavoritesListRecipe.objects.filter(user=user, recipe=value).exists():
+            raise serializers.ValidationError(
+                'Рецепт, который вы пытаетесь добавить, уже находится в списке избранного.'
+            )
+        return value
+
+    def to_representation(self, instance):
+        return Simple2RecipeSerializer(instance.recipe).data
 
 
 class RecipeIngredientReadSerializer(serializers.ModelSerializer):
