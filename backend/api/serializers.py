@@ -41,6 +41,7 @@ class UserAvatarSerializer(serializers.ModelSerializer):
             )
         return value
 
+
 class UserListSerializer(serializers.ModelSerializer):
     avatar = Base64ImageField(required=False)
     is_subscribed = serializers.SerializerMethodField()
@@ -277,7 +278,6 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             'cooking_time',
         )
         read_only_fields = ('author',)
-
 
     def validate(self, data):
         # Check if 'ingredients' key is present in the request data

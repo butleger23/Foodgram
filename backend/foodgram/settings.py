@@ -124,9 +124,7 @@ DJOSER = {
         'user': 'api.serializers.UserListSerializer',
         'current_user': 'api.serializers.UserListSerializer',
     },
-    'PERMISSIONS': {
-        'user_list': ['rest_framework.permissions.AllowAny']
-    }
+    'PERMISSIONS': {'user_list': ['rest_framework.permissions.AllowAny']},
 }
 
 LANGUAGE_CODE = 'en-us'
