@@ -18,6 +18,6 @@
 
 ### Адрес сервера:
 
-К серверу можно получить доступ:
-[borpa.bounceme.net](https://borpa.bounceme.net/)
-[https://51.250.101.197/](https://51.250.101.197/recipes)
+Проект развернут:
+[На домене: borpa.bounceme.net](https://borpa.bounceme.net/)
+[По IP: https://51.250.101.197/](https://51.250.101.197/recipes)
