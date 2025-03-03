@@ -6,6 +6,7 @@ from .models import Recipe, RecipeIngredient
 AMOUNT_OF_INGREDIENTS_TO_ADD = 3
 MINIMUM_AMOUNT_OF_INGREDIENTS = 1
 
+
 class RecipeIngredientInline(admin.TabularInline):
     model = RecipeIngredient
     extra = AMOUNT_OF_INGREDIENTS_TO_ADD

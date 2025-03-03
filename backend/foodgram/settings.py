@@ -9,7 +9,6 @@ load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 SECRET_KEY = os.getenv('SECRET_KEY', get_random_secret_key())
 
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
@@ -87,7 +86,7 @@ else:
             'HOST': os.getenv('DB_HOST', ''),
             'PORT': os.getenv('DB_PORT', 5432),
         }
-}
+    }
 
 AUTH_USER_MODEL = 'users.FoodgramUser'
 
@@ -118,7 +117,19 @@ REST_FRAMEWORK = {
     ],
 }
 
-DJOSER = {'LOGIN_FIELD': 'email'}
+DJOSER = {
+    'LOGIN_FIELD': 'email',
+    'HIDE_USERS': False,
+    'SERIALIZERS': {
+        'user_create': 'api.serializers.UserCreateSerializer',
+        'set_password': 'djoser.serializers.SetPasswordSerializer',
+        'user': 'api.serializers.UserListSerializer',
+        'current_user': 'api.serializers.UserListSerializer',
+    },
+    'PERMISSIONS': {
+        'user_list': ['rest_framework.permissions.AllowAny']
+    }
+}
 
 LANGUAGE_CODE = 'en-us'
 
