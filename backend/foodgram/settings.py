@@ -17,7 +17,7 @@ ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(', ')
 
 CSRF_TRUSTED_ORIGINS = ['https://borpa.bounceme.net']
 
-# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_SSL_REDIRECT = False
 
 INSTALLED_APPS = [
@@ -141,19 +141,13 @@ USE_L10N = True
 
 USE_TZ = True
 
-STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'static'
-
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = '/media'
 
-# MEDIA_URL = '/media/'
-# MEDIA_ROOT = '/media'
-
-# STATIC_URL = '/static/'
-# STATIC_ROOT = '/static/static/'
-# STATICFILES_DIRS = [
-#     '/app/static',
-# ]
+STATIC_URL = '/static/'
+STATIC_ROOT = '/static/static/'
+STATICFILES_DIRS = [
+    '/app/static',
+]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
