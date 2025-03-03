@@ -19,50 +19,27 @@ User = get_user_model()
 
 
 class UserAvatarSerializer(serializers.ModelSerializer):
-    avatar = Base64ImageField(required=True)
+    avatar = Base64ImageField()
 
     class Meta:
         model = User
         fields = ('avatar',)
 
+    def validate(self, data):
+        # Check if 'ingredients' key is present in the request data
+        if 'avatar' not in data:
+            raise serializers.ValidationError(
+                {'avatar': 'This field is required.'}
+            )
+        return data
+
     def validate_avatar(self, value):
+        # Check the ingredient value
         if not value:
             raise serializers.ValidationError(
                 'The avatar field cannot be empty.'
             )
         return value
-
-    def validate(self, attrs):
-        if 'avatar' not in attrs:
-            raise serializers.ValidationError(
-                {'avatar': 'This field is required.'}
-            )
-        return attrs
-
-
-class UserCreateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('email', 'username', 'first_name', 'last_name', 'password')
-        extra_kwargs = {'password': {'write_only': True}}
-
-    def create(self, validated_data):
-        password = validated_data.pop('password')
-        user = super().create(validated_data)
-        user.set_password(password)
-        user.save()
-        return user
-
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        return {
-            'email': representation['email'],
-            'id': instance.id,
-            'username': representation['username'],
-            'first_name': representation['first_name'],
-            'last_name': representation['last_name'],
-        }
-
 
 class UserListSerializer(serializers.ModelSerializer):
     avatar = Base64ImageField(required=False)
@@ -110,7 +87,11 @@ class DisplaySubscriptionSerializer(UserListSerializer):
         recipes = obj.recipes.all()
         recipes_limit = self.context.get('recipes_limit', None)
         if recipes_limit is not None:
-            recipes = recipes[: int(recipes_limit)]
+            try:
+                recipes_limit = int(recipes_limit)
+                recipes = recipes[:recipes_limit]
+            except (ValueError, TypeError):
+                pass
         return SimpleRecipeSerializer(recipes, many=True, read_only=True).data
 
     def get_recipes_count(self, obj):
@@ -297,11 +278,14 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ('author',)
 
+
     def validate(self, data):
+        # Check if 'ingredients' key is present in the request data
         if 'ingredients' not in data:
             raise serializers.ValidationError(
                 {'ingredients': 'Для создания рецепта требуются ингредиенты'}
             )
+        # Check if 'tags' key is present in the request data
         if 'tags' not in data:
             raise serializers.ValidationError(
                 {'tags': 'Для создания рецепта требуются теги'}

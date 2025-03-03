@@ -5,7 +5,6 @@ from django.db.models import Sum
 from django.http import FileResponse, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django_filters.rest_framework import DjangoFilterBackend
-from djoser.conf import settings as djoser_settings
 from djoser.views import UserViewSet as DjoserUserViewSet
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfbase import pdfmetrics
@@ -38,8 +37,6 @@ from .serializers import (
     ShoppingCartRecipeSerializer,
     TagSerializer,
     UserAvatarSerializer,
-    UserCreateSerializer,
-    UserListSerializer,
 )
 
 
@@ -55,15 +52,6 @@ class UserViewSet(DjoserUserViewSet):
     queryset = User.objects.all()
     pagination_class = CustomPaginationClass
 
-    def get_serializer_class(self):
-        if self.action == 'set_password':
-            return djoser_settings.SERIALIZERS.set_password
-        elif self.action == 'avatar' and self.request.method == 'PUT':
-            return UserAvatarSerializer
-        elif self.action == 'create':
-            return UserCreateSerializer
-        return UserListSerializer
-
     def get_permissions(self):
         if self.action in ('list', 'create', 'retrieve', 'get_token'):
             return [AllowAny()]
@@ -73,7 +61,12 @@ class UserViewSet(DjoserUserViewSet):
     def me(self, request):
         return super().me(request)
 
-    @action(detail=False, methods=['put'], url_path='me/avatar')
+    @action(
+        detail=False,
+        methods=['put'],
+        url_path='me/avatar',
+        serializer_class=UserAvatarSerializer,
+    )
     def avatar(self, request):
         user = request.user
         serializer = self.get_serializer(user, data=request.data, partial=True)
@@ -84,7 +77,7 @@ class UserViewSet(DjoserUserViewSet):
     @avatar.mapping.delete
     def delete_avatar(self, request):
         user = request.user
-        user.avatar = None
+        user.avatar.delete()
         user.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -133,13 +126,12 @@ class UserViewSet(DjoserUserViewSet):
             subscriber=subscriber, subscribed_to=subscribed_to
         ).delete()
 
-        if deleted_count > 0:
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        else:
+        if not deleted_count:
             return Response(
                 {'error': 'You are not subscribed to this user.'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -221,9 +213,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             user=user, recipe=recipe
         ).delete()
 
-        if deleted_count > 0:
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        else:
+        if not deleted_count:
             return Response(
                 {
                     'error': 'Рецепт, который вы пытаетесь удалить, '
@@ -231,6 +221,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=True, methods=['post'])
     def favorite(self, request, pk=None):
@@ -252,9 +243,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             user=user, recipe=recipe
         ).delete()
 
-        if deleted_count > 0:
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        else:
+        if not deleted_count:
             return Response(
                 {
                     'error': 'Рецепт, который вы пытаетесь удалить, '
@@ -262,6 +251,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=True, url_path='get-link')
     def get_link(self, request, pk=None):

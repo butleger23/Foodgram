@@ -34,11 +34,12 @@ class Recipe(models.Model):
         'Время приготовления в минутах',
         validators=[
             MinValueValidator(
-                MINIMUM_COOKING_TIME, 'Время готовки не может быть меньше 1'
+                MINIMUM_COOKING_TIME,
+                f'Время готовки не может быть меньше {MINIMUM_COOKING_TIME}',
             ),
             MaxValueValidator(
                 MAXIMUM_COOKING_TIME,
-                'Время готовки не может быть больше 32000',
+                f'Время готовки не может быть больше {MAXIMUM_COOKING_TIME}',
             ),
         ],
     )
@@ -84,11 +85,17 @@ class RecipeIngredient(models.Model):
         validators=[
             MinValueValidator(
                 MINIMUM_INGREDIENT_AMOUNT,
-                'Количество ингредиента не может быть меньше 1',
+                (
+                    'Количество ингредиента не может быть '
+                    f'меньше {MINIMUM_INGREDIENT_AMOUNT}'
+                ),
             ),
             MaxValueValidator(
                 MAXIMUM_INGREDIENT_AMOUNT,
-                'Количество ингредиента не может быть больше 32000',
+                (
+                    'Количество ингредиента не может быть '
+                    f'больше {MAXIMUM_INGREDIENT_AMOUNT}'
+                ),
             ),
         ],
     )
