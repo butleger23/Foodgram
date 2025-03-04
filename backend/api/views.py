@@ -185,7 +185,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
             pdf.drawString(
                 72,
                 y,
-                f'{ingredient}: {details["amount"]} {details["measurement_unit"]}',
+                (
+                    f'{ingredient}: {details["amount"]}'
+                    f'{details["measurement_unit"]}'
+                ),
             )
             y -= 20
             if y < 50:
