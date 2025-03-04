@@ -33,7 +33,6 @@ class UserAvatarSerializer(serializers.ModelSerializer):
         return data
 
 
-
 class UserListSerializer(serializers.ModelSerializer):
     avatar = Base64ImageField(required=False)
     is_subscribed = serializers.SerializerMethodField()
