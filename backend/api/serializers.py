@@ -26,20 +26,12 @@ class UserAvatarSerializer(serializers.ModelSerializer):
         fields = ('avatar',)
 
     def validate(self, data):
-        # Check if 'ingredients' key is present in the request data
-        if 'avatar' not in data:
+        if not data.get('avatar'):
             raise serializers.ValidationError(
                 {'avatar': 'This field is required.'}
             )
         return data
 
-    def validate_avatar(self, value):
-        # Check the ingredient value
-        if not value:
-            raise serializers.ValidationError(
-                'The avatar field cannot be empty.'
-            )
-        return value
 
 
 class UserListSerializer(serializers.ModelSerializer):
@@ -132,12 +124,6 @@ class TagSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'slug')
 
 
-class Simple2RecipeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Recipe
-        fields = ('id', 'name', 'image', 'cooking_time')
-
-
 class ShoppingCartRecipeSerializer(serializers.ModelSerializer):
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
     recipe = serializers.PrimaryKeyRelatedField(queryset=Recipe.objects.all())
@@ -162,7 +148,7 @@ class ShoppingCartRecipeSerializer(serializers.ModelSerializer):
         return value
 
     def to_representation(self, instance):
-        return Simple2RecipeSerializer(instance.recipe).data
+        return SimpleRecipeSerializer(instance.recipe).data
 
 
 class FavoritesListRecipeSerializer(serializers.ModelSerializer):
@@ -191,7 +177,7 @@ class FavoritesListRecipeSerializer(serializers.ModelSerializer):
         return value
 
     def to_representation(self, instance):
-        return Simple2RecipeSerializer(instance.recipe).data
+        return SimpleRecipeSerializer(instance.recipe).data
 
 
 class RecipeIngredientReadSerializer(serializers.ModelSerializer):
@@ -280,50 +266,29 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         read_only_fields = ('author',)
 
     def validate(self, data):
-        # Check if 'ingredients' key is present in the request data
-        if 'ingredients' not in data:
-            raise serializers.ValidationError(
-                {'ingredients': 'Для создания рецепта требуются ингредиенты'}
-            )
-        # Check if 'tags' key is present in the request data
-        if 'tags' not in data:
-            raise serializers.ValidationError(
-                {'tags': 'Для создания рецепта требуются теги'}
-            )
-        return data
-
-    def validate_tags(self, tags):
-        if tags is None:
-            raise serializers.ValidationError(
-                {'tags': 'Поле tags обязательно для заполнения'}
-            )
-
-        if not tags:
-            raise serializers.ValidationError(
-                {'tags': 'Для создания рецепта требуются теги'}
-            )
-
-        tag_ids = [tag.id for tag in tags]
-        if len(tag_ids) != len(set(tag_ids)):
-            raise serializers.ValidationError(
-                {'tags': 'Теги не должны повторяться'}
-            )
-
-        return tags
-
-    def validate_ingredients(self, ingredients):
+        ingredients = data.get('ingredients')
         if not ingredients:
             raise serializers.ValidationError(
                 {'ingredients': 'Для создания рецепта требуются ингредиенты'}
             )
-
         ingredient_ids = [ingredient['id'].id for ingredient in ingredients]
         if len(ingredient_ids) != len(set(ingredient_ids)):
             raise serializers.ValidationError(
                 {'ingredients': 'Ингредиенты не должны повторяться'}
             )
 
-        return ingredients
+        tags = data.get('tags')
+        if not tags:
+            raise serializers.ValidationError(
+                {'tags': 'Для создания рецепта требуются теги'}
+            )
+        tag_ids = [tag.id for tag in tags]
+        if len(tag_ids) != len(set(tag_ids)):
+            raise serializers.ValidationError(
+                {'tags': 'Теги не должны повторяться'}
+            )
+
+        return data
 
     def validate_image(self, image):
         if not image:

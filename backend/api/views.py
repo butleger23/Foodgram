@@ -24,7 +24,7 @@ from recipes.models import (
 )
 from tags.models import Tag
 from users.models import Subscriptions
-from .filters import RecipeFilter
+from .filters import IngredientFilter, RecipeFilter
 from .pagination import CustomPaginationClass
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (
@@ -155,18 +155,22 @@ class RecipeViewSet(viewsets.ModelViewSet):
         )
 
         user = request.user
-
+        print(0)
         shopping_list_result = (
             RecipeIngredient.objects.filter(recipe__shopping_cart__user=user)
-            .values('ingredient__name')
+            .values('ingredient__name', 'ingredient__measurement_unit')
             .annotate(total_amount=Sum('amount'))
         )
+        print(1)
 
         shopping_list_dict = {
-            item['ingredient__name']: item['total_amount']
+            item['ingredient__name']: {
+                'amount': item['total_amount'],
+                'measurement_unit': item['ingredient__measurement_unit'],
+            }
             for item in shopping_list_result
         }
-
+        print(2)
         if not shopping_list_dict:
             return HttpResponse('Your shopping cart is empty.', status=400)
 
@@ -177,8 +181,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
         pdf.drawString(72, 750, 'Shopping List')
 
         y = 730
-        for ingredient, amount in shopping_list_dict.items():
-            pdf.drawString(72, y, f'{ingredient}: {amount}')
+        for ingredient, details in shopping_list_dict.items():
+            pdf.drawString(
+                72,
+                y,
+                f'{ingredient}: {details["amount"]} {details["measurement_unit"]}',
+            )
             y -= 20
             if y < 50:
                 pdf.showPage()
@@ -273,4 +281,4 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ('name',)
+    filterset_class = IngredientFilter

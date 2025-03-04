@@ -1,6 +1,7 @@
 from django.db.models import Q
 from django_filters import rest_framework as filters
 
+from ingredients.models import Ingredient
 from recipes.models import Recipe
 
 
@@ -18,23 +19,15 @@ class RecipeFilter(filters.FilterSet):
 
     def filter_is_favorited(self, queryset, name, value):
         if value:
-            return queryset.filter(
-                favorites_list__user=self.request.user
-            )
+            return queryset.filter(favorites_list__user=self.request.user)
         else:
-            return queryset.exclude(
-                favorites_list__user=self.request.user
-            )
+            return queryset.exclude(favorites_list__user=self.request.user)
 
     def filter_is_in_shopping_cart(self, queryset, name, value):
         if value:
-            return queryset.filter(
-                shopping_cart__user=self.request.user
-            )
+            return queryset.filter(shopping_cart__user=self.request.user)
         else:
-            return queryset.exclude(
-                shopping_cart__user=self.request.user
-            )
+            return queryset.exclude(shopping_cart__user=self.request.user)
 
     def filter_tags(self, queryset, name, value):
         tags = self.request.query_params.getlist('tags')
@@ -42,3 +35,11 @@ class RecipeFilter(filters.FilterSet):
         for tag in tags:
             q_objects |= Q(tags__slug__iexact=tag.strip())
         return queryset.filter(q_objects).distinct()
+
+
+class IngredientFilter(filters.FilterSet):
+    name = filters.CharFilter(lookup_expr='icontains')
+
+    class Meta:
+        model = Ingredient
+        fields = ['name']
