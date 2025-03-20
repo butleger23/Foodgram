@@ -13,21 +13,20 @@ cd Foodgram
 
 В корневой директории требуется создать .env файл с данными переменными
 ```
-POSTGRES_USER
-POSTGRES_PASSWORD
-POSTGRES_DB
-DB_HOST
-DB_PORT
-SECRET_KEY
-DEBUG
-ALLOWED_HOSTS
-USE_SQLITE
+POSTGRES_USER=user_example
+POSTGRES_PASSWORD=password_example
+POSTGRES_DB=example_db
+DB_HOST=db
+DB_PORT=5432
+DEBUG=False
+ALLOWED_HOSTS='127.0.0.1, localhost:8000'
+USE_SQLITE=False
 ```
 USE_SQLITE - булевая переменная, определяющая какая база данных используется (sqlite/postgres)
 
 Находясь в корневой директории выполнить
 
-`docker compose -f docker-compose.production.yml up -d`
+`docker compose up -d`
 
 Проект будет доступен по url `http://localhost:8000/recipes`
 
